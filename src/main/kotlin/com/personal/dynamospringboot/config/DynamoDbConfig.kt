@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class DynamoDbConfig {
+class DynamoDbConfig(private val dynamoDBProperties: DynamoDBProperties) {
 
     @Bean
     fun dynamoDBMapper(): DynamoDBMapper {
@@ -19,8 +19,12 @@ class DynamoDbConfig {
 
     fun buildAmazonDynamoDB(): AmazonDynamoDB {
         return AmazonDynamoDBClientBuilder.standard()
-            .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "ap-south-1"))
-            .withCredentials(AWSStaticCredentialsProvider(BasicAWSCredentials("local", "local")))
+            .withEndpointConfiguration(
+                AwsClientBuilder.EndpointConfiguration(dynamoDBProperties.serviceEndpoint, dynamoDBProperties.region)
+            )
+            .withCredentials(
+                AWSStaticCredentialsProvider(BasicAWSCredentials(dynamoDBProperties.accessKey, dynamoDBProperties.secretKey))
+            )
             .build()
     }
 }
