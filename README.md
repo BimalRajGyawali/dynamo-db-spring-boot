@@ -2,11 +2,23 @@
 
 Integration of AWS DyanamoDB with Spring Boot and Kotlin
 
+
+#### Dependency:
+
+```xml
+<dependency>
+   <groupId>com.amazonaws</groupId>
+   <artifactId>aws-java-sdk-dynamodb</artifactId>
+   <version>1.12.312</version>
+</dependency>
+
+```
+
 #### Configuration:
 
 ```Kotlin
 @Configuration
-class DynamoDbConfig(private val dynamoDBProperties: DynamoDBProperties) {
+class DynamoDbConfig(private val properties: DynamoDBProperties) {
 
     @Bean
     fun dynamoDBMapper(): DynamoDBMapper {
@@ -16,15 +28,43 @@ class DynamoDbConfig(private val dynamoDBProperties: DynamoDBProperties) {
     fun buildAmazonDynamoDB(): AmazonDynamoDB {
         return AmazonDynamoDBClientBuilder.standard()
             .withEndpointConfiguration(
-                AwsClientBuilder.EndpointConfiguration(dynamoDBProperties.serviceEndpoint, dynamoDBProperties.region)
+                AwsClientBuilder.EndpointConfiguration(properties.serviceEndpoint, properties.region)
             )
             .withCredentials(
-                AWSStaticCredentialsProvider(BasicAWSCredentials(dynamoDBProperties.accessKey, dynamoDBProperties.secretKey))
+                AWSStaticCredentialsProvider(BasicAWSCredentials(properties.accessKey, properties.secretKey))
             )
             .build()
     }
 }
 
+```
 
+#### Table
 
+```Kotlin
+@DynamoDBTable(tableName = "token")
+class Token {
+
+    @DynamoDBHashKey
+    lateinit var hashedData: String
+
+    @DynamoDBAttribute
+    lateinit var token: String
+}
+```
+
+#### Repository
+
+```Kotlin
+@Repository
+class TokenRepoImpl(private val dynamoDBMapper: DynamoDBMapper) : TokenRepo{
+
+    override fun save(token: Token) {
+       return dynamoDBMapper.save(token)
+    }
+
+    override fun getByHashedData(hashedData: String): Token? {
+        return dynamoDBMapper.load(Token::class.java, hashedData)
+    }
+}
 ```
