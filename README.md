@@ -68,3 +68,9 @@ class TokenRepoImpl(private val dynamoDBMapper: DynamoDBMapper) : TokenRepo{
     }
 }
 ```
+
+Notes:
+
+- [Reactive Integration of DynamoDB with Spring Webflux and Kotlin](https://github.com/BimalRajGyawali/dynamo-db-reactive-spring)
+- `com.amazonaws.aws-java-sdk-dynamodb` is v1 sdk 
+- `software.amazon.awssdk.dynamodb` and `software.amazon.awssdk.dynamodb-enhanced` are v2 sdk. Enhanced has async capabilities.
